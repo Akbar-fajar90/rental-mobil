@@ -1,0 +1,39 @@
+# CodeIgniter 4 specific
+.env
+.env.*
+!app/Config/Encryption.php
+writable/
+!writable/.htaccess
+
+# Composer
+vendor/
+composer.lock
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# OS generated
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+!writable/logs/.htaccess
+
+# Session files
+writable/session/
+
+# Cache
+writable/cache/
+
+# Uploaded files
+public/uploads/
+!public/uploads/.gitkeep
+
+# Backup
+*.bak
+*.sql
+*.sql.gz
