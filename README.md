@@ -1,61 +1,87 @@
-# CodeIgniter 4 Framework
+# 🚗 DriveEase - Sistem Manajemen Rental Mobil Modern
 
-## What is CodeIgniter?
+[![Framework](https://img.shields.io/badge/Framework-CodeIgniter%204-EF4223?style=for-the-badge&logo=codeigniter)](https://codeigniter.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=for-the-badge&logo=php)](https://php.net)
+[![Database](https://img.shields.io/badge/Database-MySQL-4479A1?style=for-the-badge&logo=mysql)](https://mysql.com)
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+**DriveEase** adalah platform manajemen persewaan mobil berbasis web yang dirancang untuk menyederhanakan operasional bisnis rental. Dibangun dengan fokus pada **keamanan**, **kecepatan**, dan **pengalaman pengguna (UX)** yang premium.
 
-This repository holds the distributable version of the framework.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+---
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+## ✨ Fitur Utama
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+### 🛠️ Untuk Administrator (Dashboard Powerful)
+- **Manajemen Armada Pro**: CRUD mobil dengan validasi teknis (plat nomor, tahun, tarif).
+- **Sistem Approval**: Konfirmasi atau penolakan pengajuan sewa dengan validasi dokumen pelanggan.
+- **Modul Pengembalian**: Perhitungan denda otomatis berdasarkan keterlambatan (hari) dan kondisi fisik kendaraan.
+- **Reporting System**: Export laporan riwayat transaksi ke format **PDF, Excel, dan Word**.
+- **Analitik Dashboard**: Statistik ketersediaan armada dan ringkasan keuangan secara real-time.
 
-## Important Change with index.php
+### 👤 Untuk Pelanggan (Booking Seamless)
+- **Katalog Mobil Dinamis**: Cari dan pilih unit kendaraan berdasarkan spesifikasi.
+- **Social Login**: Registrasi dan login instan menggunakan akun **Google atau Facebook**.
+- **Payment Simulator**: Alur pembayaran digital yang interaktif (meniru gateway premium seperti Midtrans).
+- **Riwayat Transaksi**: Pantau status pengajuan dan cetak invoice penyewaan secara mandiri.
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+---
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+## 🛡️ Keamanan & Arsitektur
+Aplikasi ini dibangun dengan standar keamanan tinggi:
+- **CSRF Protection**: Melindungi form dari serangan pemalsuan request.
+- **XSS Filtering**: Menghindari eksekusi skrip berbahaya pada input user.
+- **Secure File Upload**: Validasi mime-type dan integritas gambar pada setiap upload dokumen.
+- **MVC Pattern**: Arsitektur kode yang rapi dan mudah dipelihara (Maintainable).
 
-**Please** read the user guide for a better explanation of how CI4 works!
+---
 
-## Repository Management
+## 🚀 Cara Instalasi
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+1. **Clone Repository**
+   ```bash
+   git clone https://github.com/Akbar-fajar90/rental-mobil.git
+   ```
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+2. **Install Dependensi**
+   ```bash
+   composer install
+   ```
 
-## Contributing
+3. **Konfigurasi Environment**
+   - Rename file `env` menjadi `.env`
+   - Sesuaikan konfigurasi database:
+     ```env
+     database.default.hostname = localhost
+     database.default.database = rental_mobil
+     database.default.username = root
+     database.default.password = 
+     ```
 
-We welcome contributions from the community.
+4. **Jalankan Aplikasi**
+   ```bash
+   php spark serve
+   ```
 
-Please read the [*Contributing to CodeIgniter*](https://github.com/codeigniter4/CodeIgniter4/blob/develop/CONTRIBUTING.md) section in the development repository.
+---
 
-## Server Requirements
+## 🛠️ Stack Teknologi
+- **Backend**: PHP 8.2 (CodeIgniter 4)
+- **Frontend**: Bootstrap 5, Vanilla CSS (Premium Customization)
+- **Iconography**: Bootstrap Icons
+- **PDF Engine**: Dompdf
+- **Excel Engine**: PhpSpreadsheet
 
-PHP version 8.2 or higher is required, with the following extensions installed:
+---
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+## 🤝 Kontribusi
+Kami menerima kontribusi untuk pengembangan fitur lebih lanjut. Silakan buat *pull request* atau laporkan *issue* jika menemukan kendala.
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - The end of life date for PHP 8.1 was December 31, 2025.
-> - If you are still using below PHP 8.2, you should upgrade immediately.
-> - The end of life date for PHP 8.2 will be December 31, 2026.
+---
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+## 📄 Lisensi
+Proyek ini dilisensikan di bawah [MIT License](LICENSE).
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+---
+
+<p align="center">
+  Dibuat dengan ❤️ untuk solusi transportasi yang lebih baik.
+</p>
