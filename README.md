@@ -1,10 +1,10 @@
-# 🚗 DriveEase - Sistem Manajemen Rental Mobil Modern
+# 🚗 Rental Mobil - Sistem Manajemen Rental Mobil Modern
 
 [![Framework](https://img.shields.io/badge/Framework-CodeIgniter%204-EF4223?style=for-the-badge&logo=codeigniter)](https://codeigniter.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=for-the-badge&logo=php)](https://php.net)
 [![Database](https://img.shields.io/badge/Database-MySQL-4479A1?style=for-the-badge&logo=mysql)](https://mysql.com)
 
-**DriveEase** adalah platform manajemen persewaan mobil berbasis web yang dirancang untuk menyederhanakan operasional bisnis rental. Dibangun dengan fokus pada **keamanan**, **kecepatan**, dan **pengalaman pengguna (UX)** yang premium.
+**Rental Mobil** adalah platform manajemen persewaan mobil berbasis web yang dirancang untuk menyederhanakan operasional bisnis rental. Dibangun dengan fokus pada **keamanan**, **kecepatan**, dan **pengalaman pengguna (UX)** yang premium.
 
 ---
 
