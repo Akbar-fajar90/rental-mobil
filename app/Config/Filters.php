@@ -17,7 +17,8 @@ class Filters extends BaseConfig
         'honeypot'      => Honeypot::class,
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
-        'auth'          => \App\Filters\Auth::class, // <-- Tambahkan ini
+        'auth'          => \App\Filters\Auth::class,
+        'auth_pelanggan' => \App\Filters\AuthPelanggan::class,
     ];
     
     public $globals = [

@@ -41,6 +41,8 @@ class Autoload extends AutoloadConfig
      */
     public $psr4 = [
         APP_NAMESPACE => APPPATH,
+        'Midtrans'    => ROOTPATH . 'vendor/midtrans/midtrans-php/Midtrans',
+        'SnapBi'      => ROOTPATH . 'vendor/midtrans/midtrans-php/SnapBi',
     ];
 
     /**

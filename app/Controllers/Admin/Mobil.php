@@ -1,22 +1,27 @@
 <?php namespace App\Controllers\Admin;
-
+ 
 use App\Controllers\BaseController;
-
+use App\Models\MobilModel;
+ 
 class Mobil extends BaseController
 {
+    protected $mobilModel;
+
+    public function __construct()
+    {
+        $this->mobilModel = new MobilModel();
+        helper(['form', 'url', 'asset']);
+    }
+
     public function index()
     {
-        $db = \Config\Database::connect();
-        
-        // Ambil semua data mobil
-        $mobil_list = $db->query("
-            SELECT * FROM t_mobil ORDER BY id_mobil DESC
-        ")->getResult();
+        // Ambil semua data mobil menggunakan model
+        $mobil_list = $this->mobilModel->orderBy('id_mobil', 'DESC')->findAll();
         
         // Hitung statistik
-        $total_armada = $db->query("SELECT COUNT(*) as total FROM t_mobil")->getRow()->total;
-        $total_tersedia = $db->query("SELECT COUNT(*) as total FROM t_mobil WHERE status = 'tersedia'")->getRow()->total;
-        $total_disewa = $db->query("SELECT COUNT(*) as total FROM t_mobil WHERE status = 'disewa'")->getRow()->total;
+        $total_armada = $this->mobilModel->countAll();
+        $total_tersedia = $this->mobilModel->where('status', 'tersedia')->countAllResults();
+        $total_disewa = $this->mobilModel->where('status', 'disewa')->countAllResults();
         
         $data = [
             'title' => 'Daftar Mobil',
@@ -31,61 +36,67 @@ class Mobil extends BaseController
         return view('admin/mobil', $data);
     }
     
-    // ========== GET DATA MOBIL UNTUK EDIT (AJAX) ==========
     public function getMobil($id)
     {
-        $db = \Config\Database::connect();
-        $mobil = $db->query("SELECT * FROM t_mobil WHERE id_mobil = ?", [$id])->getRow();
-        
+        $mobil = $this->mobilModel->find($id);
         if ($mobil) {
             return $this->response->setJSON($mobil);
         }
-        
         return $this->response->setJSON(['error' => 'Data tidak ditemukan'], 404);
     }
     
-    // ========== SIMPAN DATA BARU ==========
     public function simpan()
     {
-        $db = \Config\Database::connect();
-        
-        // Upload file ke folder assets/img
+        // Validasi Upload File
         $foto = $this->request->getFile('foto_mobil');
         $nama_foto = '';
+
+        $rules = [
+            'foto_mobil' => 'uploaded[foto_mobil]|max_size[foto_mobil,2048]|is_image[foto_mobil]|mime_in[foto_mobil,image/jpg,image/jpeg,image/png]'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('error', $this->validator->getError('foto_mobil'));
+        }
         
         if ($foto && $foto->isValid() && !$foto->hasMoved()) {
             $nama_foto = $foto->getRandomName();
             $foto->move(FCPATH . 'assets/img', $nama_foto);
         }
         
-        // Simpan ke database
-        $db->query("
-            INSERT INTO t_mobil (plat_nomor, merk, tahun, foto_mobil, tarif_per_hari, denda_per_hari, status, device_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ", [
-            $this->request->getPost('plat_nomor'),
-            $this->request->getPost('merk'),
-            $this->request->getPost('tahun'),
-            $nama_foto,
-            $this->request->getPost('tarif_per_hari'),
-            $this->request->getPost('denda_per_hari'),
-            $this->request->getPost('status'),
-            $this->request->getPost('device_id')
-        ]);
+        $data = [
+            'plat_nomor' => $this->request->getPost('plat_nomor'),
+            'merk' => $this->request->getPost('merk'),
+            'tahun' => $this->request->getPost('tahun'),
+            'foto_mobil' => $nama_foto,
+            'tarif_per_hari' => $this->request->getPost('tarif_per_hari'),
+            'denda_per_hari' => $this->request->getPost('denda_per_hari'),
+            'status' => $this->request->getPost('status'),
+            'device_id' => $this->request->getPost('device_id')
+        ];
+
+        if (!$this->mobilModel->insert($data)) {
+            return redirect()->back()->withInput()->with('errors', $this->mobilModel->errors());
+        }
         
         return redirect()->to(base_url('admin/mobil'))->with('success', 'Mobil berhasil ditambahkan');
     }
     
-    // ========== UPDATE DATA ==========
     public function update($id)
     {
-        $db = \Config\Database::connect();
-        
-        // Upload file baru jika ada
         $foto = $this->request->getFile('foto_mobil');
         $nama_foto = $this->request->getPost('foto_mobil_lama');
         
+        // Jika ada upload foto baru, validasi
         if ($foto && $foto->isValid() && !$foto->hasMoved()) {
+            $rules = [
+                'foto_mobil' => 'max_size[foto_mobil,2048]|is_image[foto_mobil]|mime_in[foto_mobil,image/jpg,image/jpeg,image/png]'
+            ];
+
+            if (!$this->validate($rules)) {
+                return redirect()->back()->withInput()->with('error', $this->validator->getError('foto_mobil'));
+            }
+
             // Hapus foto lama
             if ($nama_foto && file_exists(FCPATH . 'assets/img/' . $nama_foto)) {
                 unlink(FCPATH . 'assets/img/' . $nama_foto);
@@ -94,44 +105,37 @@ class Mobil extends BaseController
             $foto->move(FCPATH . 'assets/img', $nama_foto);
         }
         
-        // Update database
-        $db->query("
-            UPDATE t_mobil 
-            SET plat_nomor = ?, merk = ?, tahun = ?, foto_mobil = ?, tarif_per_hari = ?, denda_per_hari = ?, status = ?, device_id = ?
-            WHERE id_mobil = ?
-        ", [
-            $this->request->getPost('plat_nomor'),
-            $this->request->getPost('merk'),
-            $this->request->getPost('tahun'),
-            $nama_foto,
-            $this->request->getPost('tarif_per_hari'),
-            $this->request->getPost('denda_per_hari'),
-            $this->request->getPost('status'),
-            $this->request->getPost('device_id'),
-            $id
-        ]);
+        $data = [
+            'id_mobil' => $id,
+            'plat_nomor' => $this->request->getPost('plat_nomor'),
+            'merk' => $this->request->getPost('merk'),
+            'tahun' => $this->request->getPost('tahun'),
+            'foto_mobil' => $nama_foto,
+            'tarif_per_hari' => $this->request->getPost('tarif_per_hari'),
+            'denda_per_hari' => $this->request->getPost('denda_per_hari'),
+            'status' => $this->request->getPost('status'),
+            'device_id' => $this->request->getPost('device_id')
+        ];
+
+        if (!$this->mobilModel->save($data)) {
+            return redirect()->back()->withInput()->with('errors', $this->mobilModel->errors());
+        }
         
         return redirect()->to(base_url('admin/mobil'))->with('success', 'Mobil berhasil diupdate');
     }
     
-    // ========== HAPUS DATA ==========
     public function hapus($id)
     {
-        $db = \Config\Database::connect();
-        
-        // Ambil nama foto untuk dihapus
-        $mobil = $db->query("SELECT foto_mobil FROM t_mobil WHERE id_mobil = ?", [$id])->getRow();
-        if ($mobil && !empty($mobil->foto_mobil)) {
-            $safe_filename = basename($mobil->foto_mobil);
-            $filepath = FCPATH . 'assets/img/' . $safe_filename;
-            
-            if (file_exists($filepath) && is_file($filepath)) {
-                unlink($filepath);
+        $mobil = $this->mobilModel->find($id);
+        if ($mobil) {
+            $nama_foto = is_array($mobil) ? $mobil['foto_mobil'] : $mobil->foto_mobil;
+            if ($nama_foto && file_exists(FCPATH . 'assets/img/' . $nama_foto)) {
+                unlink(FCPATH . 'assets/img/' . $nama_foto);
             }
+            $this->mobilModel->delete($id);
+            return redirect()->to(base_url('admin/mobil'))->with('success', 'Mobil berhasil dihapus');
         }
         
-        $db->query("DELETE FROM t_mobil WHERE id_mobil = ?", [$id]);
-        
-        return redirect()->to(base_url('admin/mobil'))->with('success', 'Mobil berhasil dihapus');
+        return redirect()->to(base_url('admin/mobil'))->with('error', 'Data tidak ditemukan');
     }
-}
+}

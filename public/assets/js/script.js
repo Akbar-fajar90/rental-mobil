@@ -332,4 +332,46 @@ document.addEventListener('DOMContentLoaded', function() {
         newPassword.addEventListener('keyup', checkPasswordMatch);
         confirmPassword.addEventListener('keyup', checkPasswordMatch);
     }
+
+    // ==========================================
+    // LANDING PAGE
+    // ==========================================
+    const header = document.querySelector('.landing-header');
+    const backToTop = document.querySelector('.back-to-top');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+
+    // Sticky Header & Back to Top
+    window.addEventListener('scroll', function() {
+        if (header) {
+            header.classList.toggle('sticky', window.scrollY > 50);
+        }
+        if (backToTop) {
+            backToTop.classList.toggle('show', window.scrollY > 300);
+        }
+    });
+
+    // Mobile Menu Toggle
+    if (mobileMenuToggle && mobileMenu) {
+        mobileMenuToggle.addEventListener('click', function() {
+            mobileMenu.classList.add('active');
+            if (mobileMenuOverlay) mobileMenuOverlay.classList.add('active');
+        });
+    }
+
+    if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener('click', function() {
+            mobileMenu.classList.remove('active');
+            mobileMenuOverlay.classList.remove('active');
+        });
+    }
+
+    // Back to Top functionality
+    if (backToTop) {
+        backToTop.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
 });

@@ -37,3 +37,6 @@ public/uploads/
 *.bak
 *.sql
 *.sql.gz
+# AI Assistant
+brain/
+scratch/

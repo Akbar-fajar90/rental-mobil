@@ -12,6 +12,32 @@
         <p class="text-muted small">Kelola ketersediaan dan rincian tarif unit kendaraan.</p>
     </div>
 
+    <!-- Alerts -->
+    <?php if (session()->getFlashdata('success')): ?>
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i><?= session()->getFlashdata('success') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
+    <?php if (session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i><?= session()->getFlashdata('error') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
+    <?php if (session()->getFlashdata('errors')): ?>
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <ul class="mb-0">
+                <?php foreach (session()->getFlashdata('errors') as $error): ?>
+                    <li><?= $error ?></li>
+                <?php endforeach; ?>
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
     <div class="row g-4">
         <!-- TABEL -->
         <div class="col-lg-8">
@@ -120,6 +146,7 @@
                     <p class="text-muted small mb-4" id="formSubtitle">Masukkan rincian spesifikasi unit kendaraan baru.</p>
                     
                     <form action="<?= base_url('admin/mobil/simpan') ?>" method="POST" enctype="multipart/form-data" id="mobilForm">
+                        <?= csrf_field() ?>
                         <input type="hidden" name="id_mobil" id="id_mobil">
                         <input type="hidden" name="foto_mobil_lama" id="foto_mobil_lama">
                         

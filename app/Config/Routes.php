@@ -11,6 +11,46 @@ $routes->setTranslateURIDashes(false);
 $routes->set404Override();
 $routes->get('test', 'Test::index');
 
+// ========== ROUTE PELANGGAN LANDING ==========
+$routes->get('/', 'Pelanggan::index');
+$routes->get('/pelanggan/dashboard', 'Pelanggan::index');
+$routes->get('/mobil', 'Pelanggan::mobil');
+$routes->get('/detail/(:num)', 'Pelanggan::detail/$1');
+$routes->get('/about', 'Page::about');
+$routes->get('/tentang', 'Page::about');
+$routes->get('/contact', 'Page::contact');
+$routes->get('/kontak', 'Page::contact');
+$routes->post('/contact/send', 'Page::send_message');
+
+// ========== ROUTE RENTAL PELANGGAN (LOGGED IN) ==========
+$routes->group('', ['filter' => 'auth_pelanggan'], function($routes) {
+    $routes->get('sewa/(:num)', 'Pelanggan::sewa_form/$1');
+    $routes->post('sewa/proses', 'Pelanggan::proses_sewa');
+    $routes->get('riwayat', 'Pelanggan::riwayat');
+    $routes->get('riwayat/detail/(:num)', 'Pelanggan::detail_sewa/$1');
+    $routes->get('riwayat/invoice/(:num)', 'Pelanggan::cetak_invoice/$1');
+    
+    // Payment routes (Simulation)
+    $routes->get('payment/checkout/(:num)', 'PaymentController::checkout/$1');
+    $routes->get('payment/simulate/(:num)', 'PaymentController::simulate/$1');
+    $routes->post('payment/process-simulation', 'PaymentController::process_simulation');
+    $routes->post('payment/manual', 'PaymentController::processManual');
+    $routes->get('payment/finish', 'PaymentController::finish');
+});
+
+// ========== ROUTE AUTH PELANGGAN ==========
+$routes->get('/login', 'AuthPelanggan::login');
+$routes->post('/auth/doLogin', 'AuthPelanggan::doLogin');
+$routes->get('/register', 'AuthPelanggan::register');
+$routes->post('/auth/doRegister', 'AuthPelanggan::doRegister');
+$routes->get('/logout', 'AuthPelanggan::logout');
+
+// Social Login
+$routes->get('/auth/google', 'AuthPelanggan::google');
+$routes->get('/auth/google/callback', 'AuthPelanggan::googleCallback');
+$routes->get('/auth/facebook', 'AuthPelanggan::facebook');
+$routes->get('/auth/facebook/callback', 'AuthPelanggan::facebookCallback');
+
 // ========== ROUTE LOGIN ADMIN ==========
 $routes->get('/admin/login', 'Admin\Auth::login');
 $routes->post('/admin/doLogin', 'Admin\Auth::doLogin');
@@ -81,6 +121,3 @@ $routes->get('laporan/export/pdf', 'Admin\Laporan::exportPdf');
     $routes->post('admin/updateSettings', 'Admin\AdminController::updateSettings');
 
 });
-
-//if (file_exists(APPPATH . 'Config/Routes.php')) {
-  //  require APPPATH . 'Config/Routes.php';

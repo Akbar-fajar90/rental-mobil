@@ -25,7 +25,10 @@ class PenyewaanModel extends Model
         'status',
         'status_pengajuan',
         'catatan_admin',
-        'tgl_pengajuan'
+        'tgl_pengajuan',
+        'dokumen_ktp',
+        'dokumen_sim',
+        'catatan_pelanggan'
     ];
     
     protected $useTimestamps = false;
