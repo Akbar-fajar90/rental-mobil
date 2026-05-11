@@ -1,0 +1,9 @@
+vendor/
+node_modules/
+writable/logs/*
+writable/cache/*
+writable/session/*
+writable/uploads/*
+.env
+.DS_Store
+*.log
