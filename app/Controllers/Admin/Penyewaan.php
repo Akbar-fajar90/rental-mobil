@@ -344,7 +344,7 @@ class Penyewaan extends BaseController
             $path = 'uploads/identitas/' . $filename;
         } elseif ($jenis == 'sim') {
             $filename = $sewa->dokumen_sim;
-            $path = 'uploads/sim/' . $filename; // Asumsi folder SIM beda
+            $path = 'uploads/dokumen/' . $filename; // Folder SIM
         }
         
         if ($filename && file_exists($path)) {

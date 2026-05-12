@@ -1,9 +1,10 @@
-vendor/
-node_modules/
-writable/logs/*
-writable/cache/*
-writable/session/*
-writable/uploads/*
+/vendor/
 .env
-.DS_Store
+/writable/*
+!/writable/index.html
+!/writable/.htaccess
+/public/uploads/*
+!/public/uploads/index.html
+.phpunit.result.cache
 *.log
+.DS_Store

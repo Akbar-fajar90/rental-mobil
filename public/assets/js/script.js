@@ -353,13 +353,13 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btnExportExcel')?.addEventListener('click', function(e) {
         e.preventDefault();
         let params = new URLSearchParams(window.location.search);
-        if(window.baseUrl) window.location.href = window.baseUrl + '/admin/laporan/exportExcel?' + params.toString();
+        if(window.baseUrl) window.location.href = window.baseUrl + '/admin/laporan/export/excel?' + params.toString();
     });
 
     document.getElementById('btnExportPdf')?.addEventListener('click', function(e) {
         e.preventDefault();
         let params = new URLSearchParams(window.location.search);
-        if(window.baseUrl) window.location.href = window.baseUrl + '/admin/laporan/exportPdf?' + params.toString();
+        if(window.baseUrl) window.location.href = window.baseUrl + '/admin/laporan/export/pdf?' + params.toString();
     });
 
     // ==========================================

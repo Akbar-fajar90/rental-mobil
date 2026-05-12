@@ -15,14 +15,14 @@
     <!-- Alerts -->
     <?php if (session()->getFlashdata('success')): ?>
         <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i><?= esc(session()->getFlashdata('success')) ?>
+            <i class="bi bi-check-circle-fill me-2"></i><?= esc((string)session()->getFlashdata('success')) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
 
     <?php if (session()->getFlashdata('error')): ?>
         <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i><?= esc(session()->getFlashdata('error')) ?>
+            <i class="bi bi-exclamation-triangle-fill me-2"></i><?= esc((string)session()->getFlashdata('error')) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
@@ -31,7 +31,7 @@
         <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
             <ul class="mb-0">
                 <?php foreach (session()->getFlashdata('errors') as $error): ?>
-                    <li><?= esc($error) ?></li>
+                    <li><?= esc((string)$error) ?></li>
                 <?php endforeach; ?>
             </ul>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -58,18 +58,18 @@
                             <?php if (!empty($mobil_list)): ?>
                                 <?php foreach ($mobil_list as $mobil): ?>
                                 <tr>
-                                    <td class="text-primary fw-bold"><?= sprintf('VHC-%03d', $mobil->id_mobil) ?></td>
+                                    <td class="text-primary fw-bold"><?= sprintf('VHC-%03d', (int)$mobil->id_mobil) ?></td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <img src="<?= getCarImage($mobil->foto_mobil, $mobil->merk) ?>" 
+                                            <img src="<?= getCarImage((string)($mobil->foto_mobil ?? ''), (string)($mobil->merk ?? '')) ?>" 
                                                  class="car-thumb" 
-                                                 alt="<?= esc($mobil->merk) ?>"
+                                                 alt="<?= esc((string)($mobil->merk ?? '')) ?>"
                                                  onerror="this.src='<?= base_url('assets/img/default-car.png') ?>'">
-                                            <span class="fw-bold ms-2"><?= esc($mobil->merk) ?></span>
+                                            <span class="fw-bold ms-2"><?= esc((string)($mobil->merk ?? '')) ?></span>
                                         </div>
                                     </td>
-                                    <td><?= esc($mobil->tahun) ?></td>
-                                    <td class="fw-bold">Rp <?= number_format($mobil->tarif_per_hari, 0, ',', '.') ?></td>
+                                    <td><?= esc((string)($mobil->tahun ?? '')) ?></td>
+                                    <td class="fw-bold">Rp <?= number_format((float)($mobil->tarif_per_hari ?? 0), 0, ',', '.') ?></td>
                                     <td>
                                         <?php 
                                         switch($mobil->status):
@@ -96,7 +96,7 @@
                                         <button class="btn btn-sm btn-outline-primary btn-edit-mobil" data-id="<?= $mobil->id_mobil ?>">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-danger btn-delete" data-id="<?= $mobil->id_mobil ?>" data-nama="<?= esc($mobil->merk) ?>">
+                                        <button class="btn btn-sm btn-outline-danger btn-delete" data-id="<?= $mobil->id_mobil ?>" data-nama="<?= esc((string)($mobil->merk ?? '')) ?>">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                      </td>

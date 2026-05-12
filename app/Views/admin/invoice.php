@@ -30,11 +30,11 @@
         </div>
         <div class="row">
             <span><strong>Pelanggan:</strong></span>
-            <span><?= esc($payment->nama_pelanggan) ?></span>
+            <span><?= esc((string)($payment->nama_pelanggan ?? '')) ?></span>
         </div>
         <div class="row">
             <span><strong>Mobil:</strong></span>
-            <span><?= esc($payment->mobil_merk) ?> (<?= esc($payment->plat_nomor) ?>)</span>
+            <span><?= esc((string)($payment->mobil_merk ?? '')) ?> (<?= esc((string)($payment->plat_nomor ?? '')) ?>)</span>
         </div>
         <div class="row">
             <span><strong>Tanggal Bayar:</strong></span>
@@ -46,7 +46,7 @@
         </div>
         <div class="row">
             <span><strong>Jumlah Bayar:</strong></span>
-            <span>Rp <?= number_format($payment->jumlah_bayar, 0, ',', '.') ?></span>
+            <span>Rp <?= number_format((float)($payment->jumlah_bayar ?? 0), 0, ',', '.') ?></span>
         </div>
         <div class="row">
             <span><strong>Status:</strong></span>
@@ -56,7 +56,7 @@
         <div class="total">
             <div class="row">
                 <span><strong>TOTAL PEMBAYARAN</strong></span>
-                <span><strong>Rp <?= number_format($payment->jumlah_bayar, 0, ',', '.') ?></strong></span>
+                <span><strong>Rp <?= number_format((float)($payment->jumlah_bayar ?? 0), 0, ',', '.') ?></strong></span>
             </div>
         </div>
         <?php else: ?>

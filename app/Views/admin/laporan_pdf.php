@@ -15,25 +15,35 @@
     </style>
 </head>
 <body>
+    <?php
+    /**
+     * @var \stdClass $summary Summary data (pendapatan, penyewaan, denda, utilisasi)
+     * @var array<int, \stdClass> $laporan Array of rental records
+     */
+    
+    // Provide defaults if not set
+    $summary = $summary ?? (object)['pendapatan' => 0, 'penyewaan' => 0, 'denda' => 0, 'utilisasi' => 0];
+    $laporan = $laporan ?? [];
+    ?>
     <h1>LAPORAN OPERASIONAL RENTAL MOBIL</h1>
     <p style="text-align: center; color: #666;">Periode: <?= date('d/m/Y H:i:s') ?></p>
     
     <div class="summary">
         <div class="summary-item">
             <strong>Total Pendapatan</strong><br>
-            Rp <?= number_format($summary->pendapatan, 0, ',', '.') ?>
+            Rp <?= number_format($summary?->pendapatan ?? 0, 0, ',', '.') ?>
         </div>
         <div class="summary-item">
             <strong>Total Penyewaan</strong><br>
-            <?= $summary->penyewaan ?> Sewa
+            <?= $summary?->penyewaan ?? 0 ?> Sewa
         </div>
         <div class="summary-item">
             <strong>Total Denda</strong><br>
-            Rp <?= number_format($summary->denda, 0, ',', '.') ?>
+            Rp <?= number_format($summary?->denda ?? 0, 0, ',', '.') ?>
         </div>
         <div class="summary-item">
             <strong>Utilisasi Armada</strong><br>
-            <?= $summary->utilisasi ?>%
+            <?= $summary?->utilisasi ?? 0 ?>%
         </div>
     </div>
     
@@ -44,6 +54,7 @@
                 <th>ID Sewa</th>
                 <th>Pelanggan</th>
                 <th>Mobil</th>
+                <th>Plat Nomor</th>
                 <th>Pendapatan</th>
                 <th>Denda</th>
                 <th>Status</th>
@@ -54,11 +65,12 @@
             <tr>
                 <td><?= date('d/m/Y', strtotime($row->tgl_sewa)) ?></td>
                 <td>#<?= $row->id_sewa ?></td>
-                <td><?= esc($row->nama_pelanggan) ?></td>
-                <td><?= esc($row->mobil_merk) ?></td>
+                <td><?= esc((string)($row->nama_pelanggan ?? '')) ?></td>
+                <td><?= esc((string)($row->mobil_merk ?? '')) ?></td>
+                <td><?= esc((string)($row->plat_nomor ?? '-')) ?></td>
                 <td>Rp <?= number_format($row->pendapatan ?? 0, 0, ',', '.') ?></td>
-                <td>Rp <?= number_format(($row->denda_terlambat ?? 0) + ($row->denda_kerusakan ?? 0), 0, ',', '.') ?></td>
-                <td><?= $row->status ?></td>
+                <td>Rp <?= number_format((float)(($row->denda_terlambat ?? 0) + ($row->denda_kerusakan ?? 0)), 0, ',', '.') ?></td>
+                <td><?= esc((string)($row->status ?? '')) ?></td>
             </tr>
             <?php endforeach; ?>
         </tbody>

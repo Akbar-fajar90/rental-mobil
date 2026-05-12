@@ -14,7 +14,7 @@
 
 <div class="container-fluid p-0">
     <h4 class="fw-bold mb-1">Ringkasan Operasional</h4>
-    <p class="text-muted small mb-4">Selamat datang kembali, <?= session()->get('adminNama') ?? 'Admin' ?>. Berikut performa armada Anda hari ini.</p>
+    <p class="text-muted small mb-4">Selamat datang kembali, <?= esc((string)(session()->get('adminNama') ?? 'Admin')) ?>. Berikut performa armada Anda hari ini.</p>
 
     <!-- Statistik Cards (DATA DARI DATABASE) -->
     <div class="row g-3 mb-4">
@@ -27,7 +27,7 @@
                     <span class="text-success-badge">+12%</span>
                 </div>
                 <div class="text-muted small">Total Pelanggan</div>
-                <h3 class="fw-bold mb-0"><?= number_format($total_pelanggan ?? 0, 0, ',', '.') ?></h3>
+                <h3 class="fw-bold mb-0"><?= number_format((float)($total_pelanggan ?? 0), 0, ',', '.') ?></h3>
             </div>
         </div>
         <div class="col-md-3">
@@ -54,7 +54,7 @@
                     <i class="bi bi-wallet2"></i>
                 </div>
                 <div class="text-muted small">Pendapatan Bulan Ini</div>
-                <h3 class="fw-bold text-primary mb-0">Rp <?= number_format($pendapatan_bulan_ini ?? 0, 0, ',', '.') ?></h3>
+                <h3 class="fw-bold text-primary mb-0">Rp <?= number_format((float)($pendapatan_bulan_ini ?? 0), 0, ',', '.') ?></h3>
             </div>
         </div>
     </div>
@@ -82,7 +82,7 @@
                         <div class="list-item">
                             <div class="stat-icon bg-light mb-0 me-3"><i class="bi bi-car-front"></i></div>
                             <div class="flex-grow-1">
-                                <div class="fw-bold small"><?= esc($armada->merk) ?> — <?= esc($armada->plat_nomor) ?></div>
+                                <div class="fw-bold small"><?= esc((string)($armada->merk ?? '')) ?> — <?= esc((string)($armada->plat_nomor ?? '')) ?></div>
                                 <div class="text-muted" style="font-size: 0.7rem;">Sewa hingga <?= date('d/m/Y', strtotime($armada->tgl_kembali_rencana)) ?></div>
                             </div>
                             <div class="status-dot bg-success"></div>
@@ -117,22 +117,22 @@
                         <?php if ($index == 0): ?>
                         <span class="badge-popular">TERPOPULER</span>
                         <?php endif; ?>
-                        <img src="<?= getCarImage($mobil->foto_mobil, $mobil->merk) ?>" 
+                        <img src="<?= getCarImage((string)($mobil->foto_mobil ?? ''), (string)($mobil->merk ?? '')) ?>" 
                         class="car-img" 
-                        alt="<?= esc($mobil->merk) ?>"
+                        alt="<?= esc((string)($mobil->merk ?? '')) ?>"
                         onerror="this.src='<?= base_url('assets/img/default-car.png') ?>'">
                     </div>
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between">
-                            <h6 class="fw-bold mb-1"><?= esc($mobil->merk) ?></h6>
-                            <span class="text-muted small"><?= $mobil->tahun ?></span>
+                            <h6 class="fw-bold mb-1"><?= esc((string)($mobil->merk ?? '')) ?></h6>
+                            <span class="text-muted small"><?= esc((string)($mobil->tahun ?? '')) ?></span>
                         </div>
                         <div class="d-flex gap-3 text-muted mb-4" style="font-size: 0.8rem;">
                             <span><i class="bi bi-people me-1"></i> 7 Seats</span>
                             <span><i class="bi bi-gear me-1"></i> Automatic</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="fw-bold text-primary m-0">Rp <?= number_format($mobil->tarif_per_hari, 0, ',', '.') ?> <small class="text-muted fw-normal" style="font-size: 0.7rem;">/ hari</small></h5>
+                            <h5 class="fw-bold text-primary m-0">Rp <?= number_format((float)($mobil->tarif_per_hari ?? 0), 0, ',', '.') ?> <small class="text-muted fw-normal" style="font-size: 0.7rem;">/ hari</small></h5>
                             <div class="small fw-bold">
                                 <i class="bi bi-star-fill text-warning"></i> 4.9 
                                 <span class="text-muted fw-normal">(<?= $mobil->total_disewa ?>x)</span>

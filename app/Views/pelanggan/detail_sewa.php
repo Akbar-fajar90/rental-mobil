@@ -1,5 +1,36 @@
 <?= $this->extend('layout/landing'); ?>
 
+<?php
+/**
+ * @var array $sewa Rental transaction details
+ * @var array $wiki External car information
+ */
+
+// Default values to prevent "undefined variable" or "undefined index" errors
+$sewa = $sewa ?? [
+    'id_sewa'             => 0,
+    'tgl_pengajuan'       => date('Y-m-d H:i:s'),
+    'status'              => 'batal',
+    'status_pengajuan'    => 'ditolak',
+    'foto_mobil'          => null,
+    'merk'                => 'Tidak Diketahui',
+    'tarif_per_hari'      => 0,
+    'plat_nomor'          => '-',
+    'tgl_sewa'            => date('Y-m-d'),
+    'tgl_kembali_rencana' => date('Y-m-d'),
+    'total_hari'          => 0,
+    'sub_total'           => 0,
+    'status_bayar'        => 'belum_lunas',
+    'metode_bayar'        => '-',
+    'tgl_kembali'         => null,
+    'denda'               => 0,
+    'catatan_admin'       => '',
+    'dokumen_ktp'         => null,
+    'dokumen_sim'         => null,
+];
+$wiki = $wiki ?? ['extract' => 'Informasi tambahan tidak tersedia saat ini.'];
+?>
+
 <?= $this->section('content'); ?>
 
 <section class="py-5 bg-light">
@@ -8,7 +39,7 @@
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Beranda</a></li>
                 <li class="breadcrumb-item"><a href="<?= base_url('/riwayat') ?>">Riwayat Sewa</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Detail Sewa #<?= $sewa['id_sewa'] ?></li>
+                <li class="breadcrumb-item active" aria-current="page">Detail Sewa #<?= esc((string)$sewa['id_sewa']) ?></li>
             </ol>
         </nav>
 
@@ -51,13 +82,13 @@
                     <div class="card-body p-4 pt-0">
                         <div class="row g-4">
                             <div class="col-md-5">
-                                <img src="<?= getCarImage($sewa['foto_mobil'], $sewa['merk']) ?>" class="img-fluid rounded-4 shadow-sm mb-3">
-                                <h5 class="fw-bold mb-1"><?= $sewa['merk'] ?></h5>
-                                <p class="text-primary fw-bold mb-3">Rp <?= number_format($sewa['tarif_per_hari'], 0, ',', '.') ?> / Hari</p>
+                                <img src="<?= getCarImage((string)$sewa['foto_mobil'], (string)$sewa['merk']) ?>" class="img-fluid rounded-4 shadow-sm mb-3">
+                                <h5 class="fw-bold mb-1"><?= esc((string)$sewa['merk']) ?></h5>
+                                <p class="text-primary fw-bold mb-3">Rp <?= number_format((float)$sewa['tarif_per_hari'], 0, ',', '.') ?> / Hari</p>
                                 
                                 <div class="bg-light p-3 rounded-4">
                                     <h6 class="fw-bold small mb-2">Wiki Info:</h6>
-                                    <p class="small text-muted mb-0"><?= substr($wiki['extract'], 0, 150) ?>...</p>
+                                    <p class="small text-muted mb-0"><?= esc(substr((string)$wiki['extract'], 0, 150)) ?>...</p>
                                 </div>
                             </div>
                             <div class="col-md-7">
@@ -65,7 +96,7 @@
                                     <table class="table table-borderless">
                                         <tr>
                                             <td class="text-muted small py-2" width="40%">Plat Nomor</td>
-                                            <td class="fw-bold py-2"><?= $sewa['plat_nomor'] ?></td>
+                                            <td class="fw-bold py-2"><?= esc((string)$sewa['plat_nomor']) ?></td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted small py-2">Tanggal Sewa</td>
@@ -81,7 +112,7 @@
                                         </tr>
                                         <tr class="border-top">
                                             <td class="text-muted fw-bold py-3">Total Biaya Sewa</td>
-                                            <td class="fw-bold text-primary fs-5 py-3">Rp <?= number_format($sewa['sub_total'], 0, ',', '.') ?></td>
+                                            <td class="fw-bold text-primary fs-5 py-3">Rp <?= number_format((float)$sewa['sub_total'], 0, ',', '.') ?></td>
                                         </tr>
                                     </table>
                                 </div>
@@ -100,7 +131,7 @@
                                 <?php if ($sewa['status_bayar'] == 'lunas') : ?>
                                     <div class="text-success mb-2 fs-1"><i class="bi bi-check-circle-fill"></i></div>
                                     <h5 class="fw-bold text-success">Lunas</h5>
-                                    <p class="small text-muted">Metode: <?= $sewa['metode_bayar'] ?></p>
+                                    <p class="small text-muted">Metode: <?= esc((string)$sewa['metode_bayar']) ?></p>
                                 <?php else : ?>
                                     <div class="text-warning mb-2 fs-1"><i class="bi bi-clock-history"></i></div>
                                     <h5 class="fw-bold text-warning">Belum Lunas</h5>
@@ -117,7 +148,7 @@
                                     <div class="text-primary mb-2 fs-1"><i class="bi bi-car-front-fill"></i></div>
                                     <h5 class="fw-bold text-primary">Sudah Dikembalikan</h5>
                                     <p class="small text-muted mb-0">Tgl: <?= date('d M Y', strtotime($sewa['tgl_kembali'])) ?></p>
-                                    <p class="small text-danger fw-bold">Denda: Rp <?= number_format($sewa['denda'], 0, ',', '.') ?></p>
+                                    <p class="small text-danger fw-bold">Denda: Rp <?= number_format((float)($sewa['denda'] ?? 0), 0, ',', '.') ?></p>
                                 <?php else : ?>
                                     <div class="text-muted mb-2 fs-1"><i class="bi bi-hourglass-split"></i></div>
                                     <h5 class="fw-bold text-muted">Masih Digunakan</h5>
@@ -137,7 +168,7 @@
                         <h5 class="fw-bold mb-4">Aksi Penyewaan</h5>
                         <div class="d-grid gap-2">
                             <?php if ($sewa['status_pengajuan'] == 'disetujui') : ?>
-                                <a href="<?= base_url('/riwayat/invoice/' . $sewa['id_sewa']) ?>" target="_blank" class="btn btn-outline-dark py-3 fw-bold" style="border-radius: 12px;">
+                                <a href="<?= base_url('/riwayat/invoice/' . esc((string)$sewa['id_sewa'])) ?>" target="_blank" class="btn btn-outline-dark py-3 fw-bold" style="border-radius: 12px;">
                                     <i class="bi bi-printer me-2"></i> Cetak Invoice
                                 </a>
                             <?php endif; ?>
@@ -149,7 +180,7 @@
                             <?php elseif ($sewa['status_pengajuan'] == 'ditolak') : ?>
                                 <div class="alert alert-danger border-0 small" style="border-radius: 12px;">
                                     <h6 class="fw-bold">Alasan Penolakan:</h6>
-                                    <p class="mb-0"><?= $sewa['catatan_admin'] ?: 'Tidak ada catatan.' ?></p>
+                                    <p class="mb-0"><?= esc((string)($sewa['catatan_admin'] ?: 'Tidak ada catatan.')) ?></p>
                                 </div>
                             <?php endif; ?>
                             

@@ -1,3 +1,10 @@
+<?php
+/**
+ * @var array $mobil
+ * @var array $filters
+ * @var \CodeIgniter\Pager\Pager $pager
+ */
+?>
 <?= $this->extend('layout/landing'); ?>
 
 <?= $this->section('content'); ?>

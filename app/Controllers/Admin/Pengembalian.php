@@ -350,8 +350,6 @@ class Pengembalian extends BaseController
     </body>
     </html>';
 
-        require_once FCPATH . 'vendor/autoload.php';
-
         $dompdf = new \Dompdf\Dompdf();
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'landscape');

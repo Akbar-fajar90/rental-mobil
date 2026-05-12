@@ -10,7 +10,7 @@ class LaporanModel extends Model
     protected $primaryKey = 'id_sewa';
     protected $returnType = 'object';
     
-    public function getSummary()
+    public function getSummary(): object
 {
     $db = \Config\Database::connect();
     
@@ -43,7 +43,14 @@ class LaporanModel extends Model
     ];
 }
     
-    public function getLaporan($limit = 10, $offset = 0, $filters = [])
+    /**
+     * Get laporan data with filters and pagination
+     * @param int $limit Items per page
+     * @param int $offset Pagination offset
+     * @param array $filters Filter options (start_date, end_date, status, search)
+     * @return array<object> Array of rental records as objects
+     */
+    public function getLaporan($limit = 10, $offset = 0, $filters = []): array
 {
     $db = \Config\Database::connect();
     
@@ -62,10 +69,15 @@ class LaporanModel extends Model
                 AND t_pembayaran.status_bayar = 'lunas'
             ), 0) as pendapatan,
             COALESCE((
-                SELECT SUM(denda_terlambat + denda_kerusakan) 
+                SELECT SUM(denda_terlambat) 
                 FROM t_pengembalian 
                 WHERE t_pengembalian.id_sewa = t_sewa.id_sewa
-            ), 0) as total_denda
+            ), 0) as denda_terlambat,
+            COALESCE((
+                SELECT SUM(denda_kerusakan) 
+                FROM t_pengembalian 
+                WHERE t_pengembalian.id_sewa = t_sewa.id_sewa
+            ), 0) as denda_kerusakan
         FROM t_sewa
         JOIN t_pelanggan ON t_pelanggan.id_pelanggan = t_sewa.id_pelanggan
         JOIN t_mobil ON t_mobil.id_mobil = t_sewa.id_mobil
@@ -98,11 +110,11 @@ class LaporanModel extends Model
     $params[] = $limit;
     $params[] = $offset;
     
-    return $db->query($sql, $params)->getResult();
+    return $db->query($sql, $params)->getResult('object');
 }
 
 // Get total laporan count
-public function getLaporanCount($filters = [])
+public function getLaporanCount($filters = []): int
 {
     $db = \Config\Database::connect();
     
@@ -140,7 +152,7 @@ public function getLaporanCount($filters = [])
 }
     
     // Get chart data (weekly revenue)
-public function getChartData()
+public function getChartData(): array
 {
     $db = \Config\Database::connect();
     
@@ -169,7 +181,7 @@ public function getChartData()
 }
     
     // Get monthly revenue report
-    public function getMonthlyRevenue($year = null)
+    public function getMonthlyRevenue($year = null): array
     {
         $year = $year ?? date('Y');
         $db = \Config\Database::connect();

@@ -2,7 +2,29 @@
 
 <?= $this->section('content') ?>
 
-<?php helper('asset'); ?>
+<?php 
+/**
+ * @var \stdClass $summary Summary data (pendapatan, penyewaan, denda, utilisasi)
+ * @var array<int, \stdClass> $laporan Array of rental records
+ * @var array $filters Applied filters (start_date, end_date, status, search)
+ * @var int $current_page Current page number
+ * @var int $total_pages Total number of pages
+ * @var int $total_data Total records count
+ * @var int $per_page Records per page
+ * @var array $chart_data Weekly revenue data for chart
+ */
+
+// Provide defaults if not set
+$summary = $summary ?? (object)['pendapatan' => 0, 'penyewaan' => 0, 'denda' => 0, 'utilisasi' => 0];
+$laporan = $laporan ?? [];
+$filters = $filters ?? [];
+$current_page = $current_page ?? 1;
+$total_pages = $total_pages ?? 1;
+$total_data = $total_data ?? 0;
+$chart_data = $chart_data ?? array_fill(0, 7, 0);
+
+helper('asset'); 
+?>
 
 <link rel="stylesheet" href="<?= base_url('assets/css/style.css') ?>">
 
@@ -15,73 +37,88 @@
     <!-- Summary Cards -->
     <div class="row g-3 mb-4">
         <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-label">Total Pendapatan</div>
-                <div class="stat-value">Rp <?= number_format($summary->pendapatan, 0, ',', '.') ?></div>
-                <div class="stat-sub"><span class="up">▲ +12.4%</span> vs bulan lalu</div>
+            <div class="stat-card border-start border-primary border-3" style="border-radius: 12px;">
+                <div class="stat-label text-primary">💰 Total Pendapatan</div>
+                <div class="stat-value text-primary">Rp <?= number_format($summary?->pendapatan ?? 0, 0, ',', '.') ?></div>
+                <div class="stat-sub mt-2"><span class="badge bg-success">▲ +12.4%</span> vs bulan lalu</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-label">Total Penyewaan</div>
-                <div class="stat-value"><?= $summary->penyewaan ?> <span style="font-size:1rem;">Sewa</span></div>
-                <div class="stat-sub"><span class="up">⊕</span> Rerata 4.3 sewa/hari</div>
+            <div class="stat-card border-start border-info border-3" style="border-radius: 12px;">
+                <div class="stat-label text-info">📋 Total Penyewaan</div>
+                <div class="stat-value text-info"><?= $summary?->penyewaan ?? 0 ?></div>
+                <div class="stat-sub mt-2"><span class="badge bg-info">⊕ Rerata 4.3/hari</span></div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-label">Akumulasi Denda</div>
-                <div class="stat-value">Rp <?= number_format($summary->denda, 0, ',', '.') ?></div>
-                <div class="stat-sub"><span class="warn">⚠</span> 12 kasus keterlambatan</div>
+            <div class="stat-card border-start border-danger border-3" style="border-radius: 12px;">
+                <div class="stat-label text-danger">⚠️ Akumulasi Denda</div>
+                <div class="stat-value text-danger">Rp <?= number_format($summary?->denda ?? 0, 0, ',', '.') ?></div>
+                <div class="stat-sub mt-2"><span class="badge bg-warning">12 kasus</span> keterlambatan</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-label">Status Armada</div>
-                <div class="stat-value"><?= $summary->utilisasi ?>% <span style="font-size:.9rem;">Utilisasi</span></div>
-                <div class="stat-sub"><span class="up">✓</span> Performa Optimal</div>
+            <div class="stat-card border-start border-success border-3" style="border-radius: 12px;">
+                <div class="stat-label text-success">✓ Status Armada</div>
+                <div class="stat-value text-success"><?= $summary?->utilisasi ?? 0 ?>%</div>
+                <div class="stat-sub mt-2"><span class="badge bg-success">Optimal</span></div>
             </div>
         </div>
     </div>
 
     <!-- Filter Section -->
-    <div class="card-custom">
-        <div class="card-header-custom">
-            <span class="fw-bold">Filter Laporan</span>
-            <div class="filter-group">
-                <input type="date" name="start_date" class="filter-input" id="startDate" value="<?= $filters['start_date'] ?? '' ?>" placeholder="Dari Tanggal">
-                <span>—</span>
-                <input type="date" name="end_date" class="filter-input" id="endDate" value="<?= $filters['end_date'] ?? '' ?>" placeholder="Sampai Tanggal">
-                <select name="status" class="filter-input" id="statusFilter">
-                    <option value="">Semua Status</option>
-                    <option value="Berlangsung" <?= ($filters['status'] ?? '') == 'Berlangsung' ? 'selected' : '' ?>>Berlangsung</option>
-                    <option value="selesai" <?= ($filters['status'] ?? '') == 'selesai' ? 'selected' : '' ?>>Selesai</option>
-                    <option value="batal" <?= ($filters['status'] ?? '') == 'batal' ? 'selected' : '' ?>>Batal</option>
-                </select>
-                <input type="text" class="filter-input" id="searchInput" value="<?= $filters['search'] ?? '' ?>" placeholder="Cari pelanggan/mobil..." style="width: 200px;">
-                <button class="btn-filter" id="btnApplyFilter"><i class="bi bi-search me-1"></i> Terapkan</button>
-                <button class="btn-reset" id="btnResetFilter"><i class="bi bi-arrow-repeat me-1"></i> Reset</button>
-                <div class="dropdown d-inline">
-                    <button class="btn-export dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-download me-1"></i> Export
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" id="btnExportExcel"><i class="bi bi-file-earmark-excel text-success me-2"></i> Export ke Excel</a></li>
-                        <li><a class="dropdown-item" href="#" id="btnExportPdf"><i class="bi bi-file-earmark-pdf text-danger me-2"></i> Export ke PDF</a></li>
-                    </ul>
+    <div class="card-custom mb-4 shadow-sm">
+        <div class="card-header-custom border-bottom bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <span class="fw-bold text-white" style="font-size: 1rem;"><i class="bi bi-funnel me-2"></i>Filter Laporan</span>
+        </div>
+        <div class="p-4 bg-white rounded-bottom">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-2">
+                    <label class="form-label small text-muted fw-bold">📅 Periode Awal</label>
+                    <input type="date" name="start_date" class="form-control form-control-sm" id="startDate" value="<?= $filters['start_date'] ?? '' ?>">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted fw-bold">📅 Periode Akhir</label>
+                    <input type="date" name="end_date" class="form-control form-control-sm" id="endDate" value="<?= $filters['end_date'] ?? '' ?>">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted fw-bold">🏷️ Status</label>
+                    <select name="status" class="form-select form-select-sm" id="statusFilter">
+                        <option value="">Semua Status</option>
+                        <option value="Berlangsung" <?= ($filters['status'] ?? '') == 'Berlangsung' ? 'selected' : '' ?>>Berlangsung</option>
+                        <option value="selesai" <?= ($filters['status'] ?? '') == 'selesai' ? 'selected' : '' ?>>Selesai</option>
+                        <option value="batal" <?= ($filters['status'] ?? '') == 'batal' ? 'selected' : '' ?>>Batal</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted fw-bold">🔍 Pencarian</label>
+                    <input type="text" class="form-control form-control-sm" id="searchInput" value="<?= $filters['search'] ?? '' ?>" placeholder="Nama pelanggan/mobil...">
+                </div>
+                <div class="col-md-3 text-end">
+                    <div class="btn-group w-100" role="group">
+                        <button class="btn btn-sm btn-outline-secondary" id="btnResetFilter"><i class="bi bi-arrow-counterclockwise me-1"></i> Reset</button>
+                        <button class="btn btn-sm btn-primary" id="btnApplyFilter"><i class="bi bi-funnel-fill me-1"></i> Terapkan</button>
+                        <button class="btn btn-sm btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-download me-1"></i> Export
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" id="btnExportExcel"><i class="bi bi-file-earmark-excel text-success me-2"></i> Excel</a></li>
+                            <li><a class="dropdown-item" href="#" id="btnExportPdf"><i class="bi bi-file-earmark-pdf text-danger me-2"></i> PDF</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Data Table -->
-    <div class="card-custom">
-        <div class="card-header-custom">
-            <span class="fw-bold">Data Riwayat Penyewaan</span>
+    <div class="card-custom shadow-sm">
+        <div class="card-header-custom border-bottom bg-white">
+            <span class="fw-bold text-dark">📊 Data Riwayat Penyewaan</span>
         </div>
         <div class="table-responsive">
-            <table class="table-custom">
-                <thead>
+            <table class="table table-sm align-middle">
+                <thead class="table-light">
                     <tr>
                         <th>Tanggal</th>
                         <th>ID Sewa</th>
@@ -101,21 +138,21 @@
                             <td><span class="trx-id">#<?= $row->id_sewa ?></span></td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="avatar" style="background: <?= '#' . substr(md5($row->nama_pelanggan), 0, 6) ?>">
-                                        <?= strtoupper(substr($row->nama_pelanggan, 0, 1)) ?>
+                                    <div class="avatar" style="background: <?= '#' . substr(md5((string)($row->nama_pelanggan ?? '')), 0, 6) ?>">
+                                        <?= strtoupper(substr((string)($row->nama_pelanggan ?? 'U'), 0, 1)) ?>
                                     </div>
-                                    <?= esc($row->nama_pelanggan) ?>
+                                    <?= esc((string)($row->nama_pelanggan ?? '')) ?>
                                 </div>
                             </td>
-                            <td><?= esc($row->mobil_merk) ?></td>
-                            <td><span class="text-muted small"><?= esc($row->plat_nomor ?? '-') ?></span></td>
+                            <td><?= esc((string)($row->mobil_merk ?? '')) ?></td>
+                            <td><span class="text-muted small"><?= esc((string)($row->plat_nomor ?? '-')) ?></span></td>
                             <td><span class="amount">Rp <?= number_format($row->pendapatan ?? 0, 0, ',', '.') ?></span></td>
                             <td>
                                 <?php $totalDenda = ($row->denda_terlambat ?? 0) + ($row->denda_kerusakan ?? 0); ?>
                                 <?php if ($totalDenda > 0): ?>
-                                    <span class="denda">Rp <?= number_format($totalDenda, 0, ',', '.') ?></span>
+                                    <span class="badge bg-danger">Rp <?= number_format($totalDenda, 0, ',', '.') ?></span>
                                 <?php else: ?>
-                                    <span class="no-denda">—</span>
+                                    <span class="badge bg-success">Rp 0</span>
                                 <?php endif; ?>
                             </td>
                             <td>
@@ -145,43 +182,44 @@
                 </tbody>
             </table>
         </div>
-        <div class="card-header-custom border-top">
-            <small class="text-muted">Menampilkan <?= count($laporan) ?> dari <?= $total_data ?> laporan</small>
+        <div class="card-header-custom border-top d-flex justify-content-between align-items-center bg-light">
+            <small class="text-muted">📊 Menampilkan <strong><?= count($laporan ?? []) ?></strong> dari <strong><?= $total_data ?? 0 ?></strong> laporan</small>
             <div class="pagination" id="pagination">
-                <?php if ($current_page > 1): ?>
-                    <button class="pg-btn" data-page="<?= $current_page - 1 ?>">‹</button>
+                <?php if (($current_page ?? 1) > 1): ?>
+                    <button class="pg-btn" data-page="<?= ($current_page ?? 1) - 1 ?>">‹</button>
                 <?php endif; ?>
                 
-                <?php for ($i = 1; $i <= min(5, $total_pages); $i++): ?>
-                    <button class="pg-btn <?= $i == $current_page ? 'active' : '' ?>" data-page="<?= $i ?>"><?= $i ?></button>
+                <?php for ($i = 1; $i <= min(5, $total_pages ?? 1); $i++): ?>
+                    <button class="pg-btn <?= $i == ($current_page ?? 1) ? 'active' : '' ?>" data-page="<?= $i ?>"><?= $i ?></button>
                 <?php endfor; ?>
                 
-                <?php if ($total_pages > 5): ?>
+                <?php if (($total_pages ?? 1) > 5): ?>
                     <span>...</span>
-                    <button class="pg-btn" data-page="<?= $total_pages ?>"><?= $total_pages ?></button>
+                    <button class="pg-btn" data-page="<?= $total_pages ?? 1 ?>"><?= $total_pages ?? 1 ?></button>
                 <?php endif; ?>
                 
-                <?php if ($current_page < $total_pages): ?>
-                    <button class="pg-btn" data-page="<?= $current_page + 1 ?>">›</button>
+                <?php if (($current_page ?? 1) < ($total_pages ?? 1)): ?>
+                    <button class="pg-btn" data-page="<?= ($current_page ?? 1) + 1 ?>">›</button>
                 <?php endif; ?>
             </div>
         </div>
     </div>
 
     <!-- Chart -->
-    <div class="card-custom">
-        <div class="card-header-custom">
+    <div class="card-custom mt-4 shadow-sm">
+        <div class="card-header-custom border-bottom bg-white">
             <div>
-                <div class="fw-bold">Analisis Tren Pendapatan</div>
+                <div class="fw-bold">📈 Analisis Tren Pendapatan</div>
                 <small class="text-muted">Pendapatan mingguan dalam juta Rupiah</small>
             </div>
         </div>
-        <div class="p-4">
+        <div class="p-4" style="background: linear-gradient(135deg, #f5f7fa 0%, #fafbfc 100%);">
             <div class="bar-chart" id="barChart">
                 <?php
                 $days = ['SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB', 'MIN'];
-                $maxChart = !empty($chart_data) ? max($chart_data) : 1;
-                foreach ($chart_data as $i => $val):
+                $chartDataArray = $chart_data ?? array_fill(0, 7, 0);
+                $maxChart = !empty($chartDataArray) ? max($chartDataArray) : 1;
+                foreach ($chartDataArray as $i => $val):
                     $pct = $maxChart > 0 ? round(($val / $maxChart) * 100) : 0;
                     $highlight = ($val == $maxChart && $val > 0) ? 'highlight' : '';
                 ?>

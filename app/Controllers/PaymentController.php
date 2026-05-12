@@ -153,4 +153,91 @@ class PaymentController extends Controller
     {
         return view('pelanggan/payment_finish', ['status' => 'error']);
     }
+
+    public function generateQr($id_sewa, $ewallet)
+    {
+        helper('qr');
+        
+        $id_sewa = (int)$id_sewa;
+        $sewa = $this->penyewaanModel->select('t_sewa.*, t_mobil.merk as car_name')
+                    ->join('t_mobil', 't_mobil.id_mobil = t_sewa.id_mobil')
+                    ->find($id_sewa);
+
+        if (!$sewa) {
+            return redirect()->back()->with('error', 'Data penyewaan tidak ditemukan');
+        }
+
+        $totalPaid = $this->pembayaranModel->getTotalPaidBySewa($id_sewa);
+        $amountToPay = $sewa->sub_total - $totalPaid;
+
+        if ($amountToPay <= 0) {
+            return redirect()->to('/riwayat/' . $id_sewa)->with('success', 'Penyewaan ini sudah lunas');
+        }
+
+        $order_id = 'RENTAL-' . $id_sewa . '-' . time() . '-' . strtoupper($ewallet);
+        
+        // Simulasikan link pembayaran (bisa diganti dengan link API Midtrans sebenarnya jika dibutuhkan)
+        $paymentUrl = base_url('payment/checkout/' . $id_sewa . '?method=' . $ewallet);
+        $qrCodeBase64 = generate_qr_base64($paymentUrl);
+
+        $data = [
+            'title' => 'Pembayaran via ' . strtoupper($ewallet),
+            'sewa' => $sewa,
+            'amount' => $amountToPay,
+            'ewallet' => strtoupper($ewallet),
+            'qrCode' => $qrCodeBase64,
+            'order_id' => $order_id
+        ];
+
+        return view('pelanggan/payment_qr', $data);
+    }
+
+    public function bankTransfer($id_sewa, $bank)
+    {
+        $id_sewa = (int)$id_sewa;
+        $sewa = $this->penyewaanModel->select('t_sewa.*, t_mobil.merk as car_name')
+                    ->join('t_mobil', 't_mobil.id_mobil = t_sewa.id_mobil')
+                    ->find($id_sewa);
+
+        if (!$sewa) {
+            return redirect()->back()->with('error', 'Data penyewaan tidak ditemukan');
+        }
+
+        $totalPaid = $this->pembayaranModel->getTotalPaidBySewa($id_sewa);
+        $amountToPay = $sewa->sub_total - $totalPaid;
+
+        if ($amountToPay <= 0) {
+            return redirect()->to('/riwayat/' . $id_sewa)->with('success', 'Penyewaan ini sudah lunas');
+        }
+
+        // Data akun bank manual untuk instruksi
+        $bank_accounts = [
+            'bca' => ['name' => 'Bank BCA', 'account_number' => '1234567890', 'owner' => 'PT Rental Mobil'],
+            'mandiri' => ['name' => 'Bank Mandiri', 'account_number' => '9876543210', 'owner' => 'PT Rental Mobil'],
+            'bni' => ['name' => 'Bank BNI', 'account_number' => '1122334455', 'owner' => 'PT Rental Mobil'],
+            'bri' => ['name' => 'Bank BRI', 'account_number' => '5544332211', 'owner' => 'PT Rental Mobil'],
+        ];
+
+        $bank_info = $bank_accounts[strtolower($bank)] ?? null;
+
+        if (!$bank_info) {
+            return redirect()->back()->with('error', 'Metode bank tidak didukung.');
+        }
+
+        // Generate virtual account simulasi
+        $virtual_account = '88' . str_pad(rand(1, 99999999), 8, '0', STR_PAD_LEFT);
+        $expired = date('Y-m-d H:i:s', strtotime('+24 hours'));
+
+        $data = [
+            'title' => 'Transfer via ' . strtoupper($bank),
+            'sewa' => $sewa,
+            'amount' => $amountToPay,
+            'bank' => strtoupper($bank),
+            'bank_info' => $bank_info,
+            'virtual_account' => $virtual_account,
+            'expired' => $expired
+        ];
+
+        return view('pelanggan/payment_bank_transfer', $data);
+    }
 }

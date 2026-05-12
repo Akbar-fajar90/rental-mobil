@@ -15,6 +15,8 @@
 <?php helper('asset'); ?>
 
 <link rel="stylesheet" href="<?= base_url('assets/css/style.css') ?>">
+<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="<?= $midtrans_client_key ?>"></script>
+
 <div class="pembayaran-wrapper container-fluid p-4">
     <div class="mb-4">
         <h4 class="fw-bold mb-1 text-white">Pembayaran</h4>
@@ -67,8 +69,8 @@
                                     class="<?= ($selected_payment && $selected_payment->id_pembayaran == $payment->id_pembayaran) ? 'active' : '' ?>">
                                     <td><small><?= date('d/m/Y H:i', strtotime($payment->tgl_bayar)) ?></small></td>
                                     <td><span class="trx-id">#<?= $payment->id_sewa ?></span></td>
-                                    <td><?= esc((string)$payment->nama_pelanggan) ?></td>
-                                    <td><?= esc((string)$payment->mobil_merk) ?></td>
+                                    <td><?= esc((string)($payment->nama_pelanggan ?? '')) ?></td>
+                                    <td><?= esc((string)($payment->mobil_merk ?? '')) ?></td>
                                     <td class="fw-bold">Rp <?= number_format($payment->jumlah_bayar, 0, ',', '.') ?></td>
                                     <td>
                                         <?php
@@ -122,6 +124,10 @@
                     <span class="fw-bold" id="infoTotalTagihan">Rp <?= $trx ? number_format($trx->total_tagihan ?? 0, 0, ',', '.') : '0' ?></span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
+                    <span class="text-white-50 small">Total Denda</span>
+                    <span class="fw-bold text-danger" id="infoTotalDenda">Rp 0</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
                     <span class="text-white-50 small">Sisa Bayar</span>
                     <span class="fw-bold text-warning" id="infoSisaBayar">Rp 0</span>
                 </div>
@@ -150,11 +156,11 @@
                                 <?php if (!empty($approved_rentals)): ?>
                                     <?php foreach ($approved_rentals as $rental): ?>
                                         <option value="<?= $rental->id_sewa ?>"
-                                            data-nama="<?= esc((string)$rental->nama_pelanggan) ?>"
-                                            data-mobil="<?= esc((string)$rental->mobil_merk) ?>"
+                                            data-nama="<?= esc((string)($rental->nama_pelanggan ?? '')) ?>"
+                                            data-mobil="<?= esc((string)($rental->mobil_merk ?? '')) ?>"
                                             data-total="<?= $rental->sub_total ?>"
                                             <?= $trx && $trx->id_sewa == $rental->id_sewa ? 'selected' : '' ?>>
-                                            #<?= $rental->id_sewa ?> - <?= esc((string)$rental->nama_pelanggan) ?> (<?= esc((string)$rental->mobil_merk) ?>)
+                                            #<?= $rental->id_sewa ?> - <?= esc((string)($rental->nama_pelanggan ?? '')) ?> (<?= esc((string)($rental->mobil_merk ?? '')) ?>)
                                         </option>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -207,6 +213,10 @@
                                 <span id="summaryTotal">Rp 0</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
+                                <span class="text-white-50 small">Denda (Terlambat/Rusak)</span>
+                                <span class="text-danger" id="summaryDenda">Rp 0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
                                 <span class="text-white-50 small">Sudah Dibayar</span>
                                 <span class="text-success" id="summaryPaid">Rp 0</span>
                             </div>
@@ -218,6 +228,7 @@
                         </div>
 
                         <button type="submit" class="btn-konfirmasi w-100 mb-2">KONFIRMASI PEMBAYARAN</button>
+                        <button type="button" id="payWithMidtrans" class="btn btn-primary w-100 mb-2 fw-bold" style="display: none; border-radius: 10px; padding: 13px;">BAYAR DENGAN MIDTRANS</button>
                     </form>
 
                     <?php if ($trx && ($trx->id_pembayaran ?? false)): ?>
@@ -257,6 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const bankGroup = document.getElementById('bankGroup');
     const ewalletGroup = document.getElementById('ewalletGroup');
     const jumlahBayar = document.getElementById('jumlahBayar');
+    const btnMidtrans = document.getElementById('payWithMidtrans');
 
     // Metode bayar toggle
     metodeBayar?.addEventListener('change', function() {
@@ -264,6 +276,24 @@ document.addEventListener('DOMContentLoaded', function() {
         ewalletGroup.style.display = this.value === 'ewallet' ? 'block' : 'none';
         const qrGroup = document.getElementById('qrGroup');
         qrGroup.style.display = this.value === 'ewallet' ? 'block' : 'none';
+    });
+
+    // Midtrans Logic
+    btnMidtrans?.addEventListener('click', function() {
+        const idSewa = selectSewa.value;
+        if (!idSewa) return alert('Pilih sewa terlebih dahulu');
+
+        fetch(window.baseUrl + '/admin/pembayaran/getSnapToken/' + idSewa)
+            .then(r => r.json())
+            .then(data => {
+                if (data.token) {
+                    window.snap.pay(data.token, {
+                        onSuccess: (res) => window.location.reload(),
+                        onPending: (res) => window.location.reload(),
+                        onError: (res) => alert('Pembayaran Gagal')
+                    });
+                }
+            });
     });
 
     // Sewa selection - fetch sisa bayar from backend
@@ -278,10 +308,15 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(window.baseUrl + '/admin/pembayaran/getSisaBayar/' + id)
             .then(r => r.json())
             .then(data => {
+                // Show midtrans button if there is outstanding amount
+                btnMidtrans.style.display = data.sisa_bayar > 0 ? 'block' : 'none';
+                
                 const fmt = n => new Intl.NumberFormat('id-ID').format(n);
                 document.getElementById('infoTotalTagihan').textContent = 'Rp ' + fmt(data.total_tagihan);
+                document.getElementById('infoTotalDenda').textContent = 'Rp ' + fmt(data.total_denda || 0);
                 document.getElementById('infoSisaBayar').textContent = 'Rp ' + fmt(data.sisa_bayar);
                 document.getElementById('summaryTotal').textContent = 'Rp ' + fmt(data.total_tagihan);
+                document.getElementById('summaryDenda').textContent = 'Rp ' + fmt(data.total_denda || 0);
                 document.getElementById('summaryPaid').textContent = 'Rp ' + fmt(data.total_dibayar);
                 document.getElementById('summarySisa').textContent = 'Rp ' + fmt(data.sisa_bayar);
                 jumlahBayar.value = data.sisa_bayar;

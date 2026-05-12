@@ -26,6 +26,7 @@
                         <?php endif; ?>
 
                         <form action="<?= base_url('/auth/doLogin') ?>" method="POST">
+                            <?= csrf_field() ?>
                             <div class="mb-4">
                                 <label class="form-label small fw-bold text-muted">ALAMAT EMAIL</label>
                                 <div class="input-group">
@@ -37,7 +38,7 @@
                             <div class="mb-4">
                                 <div class="d-flex justify-content-between">
                                     <label class="form-label small fw-bold text-muted">KATA SANDI</label>
-                                    <a href="#" class="small text-decoration-none">Lupa kata sandi?</a>
+                                    <a href="<?= base_url('/lupa_password') ?>" class="small text-decoration-none">Lupa kata sandi?</a>
                                 </div>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-0"><i class="bi bi-lock text-muted"></i></span>

@@ -9,8 +9,13 @@ use App\Models\PenyewaanModel;
 
 class Pelanggan extends BaseController
 {
+    /** @var MobilModel */
     protected $mobilModel;
+    
+    /** @var PelangganModel */
     protected $pelangganModel;
+    
+    /** @var PenyewaanModel */
     protected $penyewaanModel;
 
     public function initController(\CodeIgniter\HTTP\RequestInterface $request, \CodeIgniter\HTTP\ResponseInterface $response, \Psr\Log\LoggerInterface $logger)
@@ -33,7 +38,7 @@ class Pelanggan extends BaseController
             ->findAll();
 
         if (empty($popularCars)) {
-            $popularCars = $this->mobilModel->where('status', 'tersedia')->limit(3)->findAll();
+            $popularCars = $this->mobilModel->asArray()->where('status', 'tersedia')->limit(3)->findAll();
         }
 
         $stats = [
@@ -81,7 +86,7 @@ class Pelanggan extends BaseController
         return view('pelanggan/mobil', $data);
     }
 
-    public function detail($id)
+    public function detail(string|int $id)
     {
         $mobil = $this->mobilModel->asArray()->find($id);
 
@@ -90,7 +95,7 @@ class Pelanggan extends BaseController
         }
 
         $wikiInfo = get_car_info($mobil['merk']);
-        $otherCars = $this->mobilModel->where('id_mobil !=', $id)
+        $otherCars = $this->mobilModel->asArray()->where('id_mobil !=', $id)
             ->where('status', 'tersedia')
             ->limit(3)
             ->findAll();
@@ -160,27 +165,48 @@ class Pelanggan extends BaseController
         $fileKtp = $this->request->getFile('dokumen_ktp');
         $fileSim = $this->request->getFile('dokumen_sim');
         
+        $base64Ktp = $this->request->getPost('base64_dokumen_ktp');
+        $base64Sim = $this->request->getPost('base64_dokumen_sim');
+        
         $ktpName = null;
         $simName = null;
 
         if (!is_dir('uploads/identitas/')) mkdir('uploads/identitas/', 0777, true);
         if (!is_dir('uploads/dokumen/')) mkdir('uploads/dokumen/', 0777, true);
 
-        if ($fileKtp && $fileKtp->isValid() && !$fileKtp->hasMoved()) {
+        // KTP Handling
+        if ($base64Ktp && preg_match('/^data:image\/(\w+);base64,/', $base64Ktp, $type)) {
+            $data = substr($base64Ktp, strpos($base64Ktp, ',') + 1);
+            $type = strtolower($type[1]); // jpg, png, gif
+            $data = base64_decode($data);
+            $ktpName = time() . '_ktp_blurred.' . $type;
+            file_put_contents('uploads/identitas/' . $ktpName, $data);
+        } else if ($fileKtp && $fileKtp->isValid() && !$fileKtp->hasMoved()) {
             $ktpName = $fileKtp->getRandomName();
             $fileKtp->move('uploads/identitas/', $ktpName);
         }
-        if ($fileSim && $fileSim->isValid() && !$fileSim->hasMoved()) {
+        
+        // SIM Handling
+        if ($base64Sim && preg_match('/^data:image\/(\w+);base64,/', $base64Sim, $type)) {
+            $data = substr($base64Sim, strpos($base64Sim, ',') + 1);
+            $type = strtolower($type[1]); // jpg, png, gif
+            $data = base64_decode($data);
+            $simName = time() . '_sim_blurred.' . $type;
+            file_put_contents('uploads/dokumen/' . $simName, $data);
+        } else if ($fileSim && $fileSim->isValid() && !$fileSim->hasMoved()) {
             $simName = $fileSim->getRandomName();
             $fileSim->move('uploads/dokumen/', $simName);
         }
+
+        /** @var object|null $pelangganData */
+        $pelangganData = $this->pelangganModel->asObject()->where('id_pelanggan', $id_pelanggan)->first();
 
         $this->pelangganModel->skipValidation(true)->update($id_pelanggan, [
             'nik' => $this->request->getPost('nik'),
             'no_telp' => $this->request->getPost('no_telp'),
             'no_sim' => $this->request->getPost('no_sim'),
             'alamat' => $this->request->getPost('alamat'),
-            'foto_identitas' => $ktpName ?: $this->pelangganModel->find($id_pelanggan)->foto_identitas
+            'foto_identitas' => $ktpName ?: $pelangganData->foto_identitas
         ]);
 
         $dataSewa = [
@@ -229,7 +255,7 @@ class Pelanggan extends BaseController
         return view('pelanggan/riwayat', $data);
     }
 
-    public function detail_sewa($id)
+    public function detail_sewa(string|int $id)
     {
         $id_pelanggan = session()->get('id_pelanggan');
         $sewa = $this->pelangganModel->getSewaDetail($id, $id_pelanggan);
@@ -249,7 +275,7 @@ class Pelanggan extends BaseController
         return view('pelanggan/detail_sewa', $data);
     }
 
-    public function cetak_invoice($id)
+    public function cetak_invoice(string|int $id)
     {
         $id_pelanggan = session()->get('id_pelanggan');
         $sewa = $this->pelangganModel->getSewaDetail($id, $id_pelanggan);
@@ -269,7 +295,7 @@ class Pelanggan extends BaseController
     // PAYMENT PROCESS
     // ==========================================
 
-    public function pembayaran($id_sewa)
+    public function pembayaran(string|int $id_sewa)
     {
         $id_pelanggan = session()->get('id_pelanggan');
         $sewa = $this->pelangganModel->getSewaDetail($id_sewa, $id_pelanggan);

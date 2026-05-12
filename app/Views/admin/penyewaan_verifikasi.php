@@ -75,8 +75,8 @@
                                     </a>
                                 </div>
                                 <div class="card-body text-center p-0" style="background: #f8f9fa;">
-                                    <?php if (($sewa->dokumen_sim ?? false) && file_exists('uploads/sim/' . $sewa->dokumen_sim)): ?>
-                                        <img src="<?= base_url('uploads/sim/' . $sewa->dokumen_sim) ?>" class="img-fluid" style="max-height: 400px; width: 100%; object-fit: contain;" alt="SIM">
+                                    <?php if (($sewa->dokumen_sim ?? false) && file_exists('uploads/dokumen/' . $sewa->dokumen_sim)): ?>
+                                        <img src="<?= base_url('uploads/dokumen/' . $sewa->dokumen_sim) ?>" class="img-fluid" style="max-height: 400px; width: 100%; object-fit: contain;" alt="SIM">
                                     <?php else: ?>
                                         <div class="py-5 text-muted">
                                             <i class="bi bi-image-fill fs-1 d-block mb-2"></i>

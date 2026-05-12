@@ -5,7 +5,7 @@
 <?php helper('asset'); ?>
 <?php
     if (!function_exists('getConditionBadge')) {
-    function getConditionBadge($condition)
+    function getConditionBadge(string $condition)
     {
         switch ($condition) {
             case 'baik':
@@ -21,7 +21,7 @@
 }
 
 if (!function_exists('getConditionText')) {
-    function getConditionText($condition)
+    function getConditionText(string $condition)
     {
         switch ($condition) {
             case 'baik':
@@ -68,22 +68,22 @@ if (!function_exists('getConditionText')) {
                 <div class="col-md-4">
                     <div class="rental-card select-rental-btn p-3 rounded-3 bg-white shadow-sm" 
                          data-id="<?= $rental->id_sewa ?>"
-                         data-nama="<?= esc($rental->nama_pelanggan) ?>"
-                         data-merk="<?= esc($rental->mobil_merk) ?>"
-                         data-plat="<?= esc($rental->plat_nomor) ?>"
+                         data-nama="<?= esc((string)($rental->nama_pelanggan ?? '')) ?>"
+                         data-merk="<?= esc((string)($rental->mobil_merk ?? '')) ?>"
+                         data-plat="<?= esc((string)($rental->plat_nomor ?? '')) ?>"
                          data-tgl_sewa="<?= $rental->tgl_sewa ?>"
                          data-tgl_kembali="<?= $rental->tgl_kembali_rencana ?>"
                          data-tarif="<?= $rental->tarif_per_hari ?>"
                          data-sub_total="<?= $rental->sub_total ?>"
-                         data-foto="<?= $rental->foto_mobil ?>">
+                         data-foto="<?= (string)$rental->foto_mobil ?>">
                         <div class="d-flex align-items-center gap-3">
-                            <img src="<?= getCarImage($rental->foto_mobil) ?>" 
+                            <img src="<?= getCarImage((string)$rental->foto_mobil) ?>" 
                                  style="width: 60px; height: 60px; object-fit: cover; border-radius: 10px;">
                             <div>
-                                <h6 class="fw-bold mb-0"><?= esc($rental->mobil_merk) ?></h6>
-                                <small class="text-muted"><?= esc($rental->plat_nomor) ?></small>
+                                <h6 class="fw-bold mb-0"><?= esc((string)$rental->mobil_merk) ?></h6>
+                                <small class="text-muted"><?= esc((string)$rental->plat_nomor) ?></small>
                                 <div class="mt-1">
-                                    <small><i class="bi bi-person me-1"></i> <?= esc($rental->nama_pelanggan) ?></small>
+                                    <small><i class="bi bi-person me-1"></i> <?= esc((string)$rental->nama_pelanggan) ?></small>
                                 </div>
                             </div>
                         </div>
@@ -129,6 +129,9 @@ if (!function_exists('getConditionText')) {
                                 </div>
                             </div>
 
+                            <label class="text-muted d-block mb-2" style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase;">Actual Return Date</label>
+                            <input type="date" name="tgl_kembali" id="tgl_kembali_actual" class="form-control bg-light border-0 py-2 mb-3" style="font-size: 0.8rem; border-radius: 8px;" value="<?= date('Y-m-d') ?>" required>
+
                             <div class="row g-2 mb-4">
                                 <div class="col-6">
                                     <small class="text-muted d-block" style="font-size: 0.6rem;">SCHEDULED RETURN</small>
@@ -141,7 +144,7 @@ if (!function_exists('getConditionText')) {
                             </div>
 
                             <label class="text-muted d-block mb-2" style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase;">Vehicle Condition Assessment</label>
-                            <select name="kondisi_mobil" class="form-select bg-light border-0 py-2 mb-3" style="font-size: 0.8rem; border-radius: 8px;" required>
+                            <select name="kondisi_mobil" id="kondisi_mobil_select" class="form-select bg-light border-0 py-2 mb-3" style="font-size: 0.8rem; border-radius: 8px;" required>
                                 <option value="baik">Perfect / As Received</option>
                                 <option value="rusak-ringan">Minor Scratch</option>
                                 <option value="rusak-berat">Major Damage</option>
@@ -151,7 +154,7 @@ if (!function_exists('getConditionText')) {
                                 <label class="text-muted d-block mb-2" style="font-size: 0.65rem; font-weight: 700;">Damage Fee</label>
                                 <div class="input-group mb-3">
                                     <span class="input-group-text">Rp</span>
-                                    <input type="text" name="denda_kerusakan" class="form-control" placeholder="0" value="0">
+                                    <input type="number" name="denda_kerusakan" id="denda_kerusakan_input" class="form-control" placeholder="0" value="0">
                                 </div>
                             </div>
                         </div>
@@ -260,14 +263,14 @@ if (!function_exists('getConditionText')) {
                         <tr>
                             <td class="text-primary fw-bold">#RTN-<?= sprintf('%05d', $row->id_pengembalian) ?></td>
                             <td>
-                                <div class="fw-bold"><?= esc($row->nama_pelanggan) ?></div>
-                                <small class="text-muted" style="font-size: 0.65rem;"><?= esc($row->plat_nomor ?? '-') ?></small>
+                                <div class="fw-bold"><?= esc((string)($row->nama_pelanggan ?? '')) ?></div>
+                                <small class="text-muted" style="font-size: 0.65rem;"><?= esc((string)($row->plat_nomor ?? '-')) ?></small>
                             </td>
-                            <td><i class="bi bi-car-front me-2"></i> <?= esc($row->mobil_merk) ?></td>
+                            <td><i class="bi bi-car-front me-2"></i> <?= esc((string)($row->mobil_merk ?? '')) ?></td>
                             <td class="text-muted"><?= date('d M Y', strtotime($row->tgl_kembali)) ?></td>
                             <td>
-                                <span class="badge-condition <?= getConditionBadge($row->kondisi_mobil) ?>">
-                                    <?= getConditionText($row->kondisi_mobil) ?>
+                                <span class="badge-condition <?= getConditionBadge((string)$row->kondisi_mobil) ?>">
+                                    <?= getConditionText((string)$row->kondisi_mobil) ?>
                                 </span>
                             </td>
                             <td class="text-end fw-bold">
@@ -291,6 +294,100 @@ if (!function_exists('getConditionText')) {
 
 <script>
     window.baseUrl = '<?= base_url() ?>';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const rentalCards = document.querySelectorAll('.select-rental-btn');
+        const returnFormSection = document.getElementById('returnFormSection');
+        const noRentalSelected = document.getElementById('noRentalSelected');
+        
+        // Input & Display Elements
+        const tglKembaliActual = document.getElementById('tgl_kembali_actual');
+        const kondisiSelect = document.getElementById('kondisi_mobil_select');
+        const dendaKerusakanInput = document.getElementById('denda_kerusakan_input');
+        const damageInputDiv = document.getElementById('damageInput');
+        
+        let currentRental = null;
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID').format(number);
+        }
+
+        function calculateFines() {
+            if (!currentRental) return;
+
+            const actualDate = new Date(tglKembaliActual.value);
+            const plannedDate = new Date(currentRental.tgl_kembali);
+            const tarif = parseInt(currentRental.tarif);
+            
+            // Calculate Late Fee
+            const diffTime = actualDate - plannedDate;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const lateDays = diffDays > 0 ? diffDays : 0;
+            const lateFee = lateDays * tarif;
+
+            // Update Late UI
+            document.getElementById('lateDays').innerText = lateDays;
+            document.getElementById('lateFee').innerText = formatRupiah(lateFee);
+            document.getElementById('lateFeeRow').style.display = lateDays > 0 ? 'flex' : 'none';
+            document.getElementById('lateStatus').innerHTML = lateDays > 0 
+                ? `<i class="bi bi-exclamation-triangle-fill me-1"></i> Terlambat ${lateDays} Hari`
+                : `<i class="bi bi-check-circle-fill me-1 text-success"></i> Tepat Waktu`;
+            document.getElementById('lateStatus').className = lateDays > 0 ? 'text-danger fw-bold small' : 'text-success fw-bold small';
+
+            // Damage Fee
+            const damageFee = parseInt(dendaKerusakanInput.value) || 0;
+            document.getElementById('damageFee').innerText = formatRupiah(damageFee);
+            document.getElementById('damageFeeRow').style.display = damageFee > 0 ? 'flex' : 'none';
+
+            // Total
+            const totalFine = lateFee + damageFee;
+            document.getElementById('totalFine').innerText = formatRupiah(totalFine);
+        }
+
+        rentalCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Toggle Active Class
+                rentalCards.forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+
+                // Store data
+                currentRental = this.dataset;
+                
+                // Fill Form
+                document.getElementById('rental_id').value = currentRental.id;
+                document.getElementById('carTitle').innerText = currentRental.merk;
+                document.getElementById('rentalIdDisplay').innerText = '#' + currentRental.id;
+                document.getElementById('customerName').innerText = currentRental.nama;
+                document.getElementById('scheduledReturn').innerText = new Date(currentRental.tgl_kembali).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                document.getElementById('totalHari').innerText = Math.ceil((new Date(currentRental.tgl_kembali) - new Date(currentRental.tgl_sewa)) / (1000 * 60 * 60 * 24));
+                document.getElementById('baseRate').innerText = formatRupiah(currentRental.sub_total);
+                
+                // Preview
+                document.getElementById('previewCarImage').src = window.baseUrl + '/uploads/mobil/' + currentRental.foto;
+                document.getElementById('previewCarTitle').innerText = currentRental.merk + ' (' + currentRental.plat + ')';
+
+                // Show Section
+                returnFormSection.style.display = 'block';
+                noRentalSelected.style.display = 'none';
+
+                calculateFines();
+            });
+        });
+
+        tglKembaliActual.addEventListener('change', calculateFines);
+        
+        kondisiSelect.addEventListener('change', function() {
+            if (this.value !== 'baik') {
+                damageInputDiv.style.display = 'block';
+            } else {
+                damageInputDiv.style.display = 'none';
+                dendaKerusakanInput.value = 0;
+            }
+            calculateFines();
+        });
+
+        dendaKerusakanInput.addEventListener('input', calculateFines);
+    });
 </script>
 <script src="<?= base_url('assets/js/script.js') ?>"></script>
 

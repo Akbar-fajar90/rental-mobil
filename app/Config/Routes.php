@@ -32,6 +32,8 @@ $routes->group('', ['filter' => 'auth_pelanggan'], function($routes) {
     
     // Payment routes (Midtrans)
     $routes->get('payment/checkout/(:num)', 'PaymentController::bayarSewa/$1');
+    $routes->get('payment/qr/(:num)/(:any)', 'PaymentController::generateQr/$1/$2');
+    $routes->get('payment/bank/(:num)/(:any)', 'PaymentController::bankTransfer/$1/$2');
     $routes->get('payment/finish', 'PaymentController::finish');
     $routes->get('payment/unfinish', 'PaymentController::unfinish');
     $routes->get('payment/error', 'PaymentController::error');
@@ -46,6 +48,11 @@ $routes->post('/auth/doLogin', 'AuthPelanggan::doLogin');
 $routes->get('/register', 'AuthPelanggan::register');
 $routes->post('/auth/doRegister', 'AuthPelanggan::doRegister');
 $routes->get('/logout', 'AuthPelanggan::logout');
+
+$routes->get('/lupa_password', 'LupaPassword::index');
+$routes->post('/lupa_password/send_reset_link', 'LupaPassword::send_reset_link');
+$routes->get('/lupa_password/reset/(:any)', 'LupaPassword::reset/$1');
+$routes->post('/lupa_password/update_password', 'LupaPassword::update_password');
 
 // Social Login
 $routes->get('/auth/google', 'AuthPelanggan::google');

@@ -7,7 +7,7 @@ use App\Models\LaporanModel;
 
 class Laporan extends BaseController
 {
-    protected $laporanModel;
+    protected LaporanModel $laporanModel;
     
     public function __construct()
     {
@@ -96,9 +96,13 @@ class Laporan extends BaseController
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
         
+        // Clean output buffer
+        if (ob_get_length()) ob_end_clean();
+        
         $filename = 'laporan_operasional_' . date('Y-m-d_His') . '.xlsx';
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
         
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $writer->save('php://output');
@@ -120,7 +124,9 @@ class Laporan extends BaseController
         
         $html = view('admin/laporan_pdf', ['laporan' => $laporan, 'summary' => $summary]);
         
-        require_once FCPATH . 'vendor/autoload.php';
+        // Clean output buffer
+        if (ob_get_length()) ob_end_clean();
+        
         $dompdf = new \Dompdf\Dompdf();
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'landscape');

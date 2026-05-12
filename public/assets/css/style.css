@@ -135,6 +135,19 @@ input:checked + .slider:before { transform: translateX(22px); }
 .bar.highlight { background: linear-gradient(180deg, var(--bs-primary), #3b82f6); }
 .bar-label { font-size: .65rem; font-weight: 700; color: #6b7280; margin-top: 6px; }
 
+/* Laporan Page Enhancements */
+.card-custom.shadow-sm { box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important; transition: box-shadow 0.3s ease; }
+.card-custom.shadow-sm:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; }
+.card-header-custom.bg-gradient { color: white !important; border: none !important; }
+.table.align-middle tbody tr { transition: background-color 0.2s ease; }
+.table.align-middle tbody tr:hover { background-color: #f8f9fa; }
+.badge { padding: 6px 12px; font-weight: 600; font-size: 0.75rem; }
+.stat-card { transition: all 0.3s ease; }
+.stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+.pagination { gap: 8px; }
+.pg-btn { min-width: 36px; min-height: 36px; border-radius: 6px; font-weight: 500; transition: all 0.2s; }
+.pg-btn:hover:not(.active) { background-color: #f1f3f5; }
+
 /* Pembayaran (Dark Theme Overrides) */
 .pembayaran-wrapper {
     background-color: #0d0f14;

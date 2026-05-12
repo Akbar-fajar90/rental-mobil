@@ -1,3 +1,10 @@
+<?php
+    // Defensive variable initialization
+    $title = $title ?? 'Pembayaran Penyewaan';
+    $amount = $amount ?? 0;
+    $snapToken = $snapToken ?? '';
+    $sewa_name = is_array($sewa) ? ($sewa['car_name'] ?? 'Mobil') : ($sewa->car_name ?? 'Mobil');
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -15,7 +22,7 @@
             <div class="col-md-6">
                 <div class="card shadow-sm border-0 text-center p-5">
                     <h4 class="fw-bold mb-4">Selesaikan Pembayaran</h4>
-                    <p class="text-muted">Klik tombol di bawah untuk membayar penyewaan mobil <strong><?= esc($sewa->car_name) ?></strong> sebesar</p>
+                    <p class="text-muted">Klik tombol di bawah untuk membayar total tagihan (Sewa + Denda) mobil <strong><?= esc((string)$sewa_name) ?></strong> sebesar</p>
                     <h2 class="text-primary fw-bold mb-5">Rp <?= number_format($amount, 0, ',', '.') ?></h2>
                     
                     <button id="pay-button" class="btn btn-primary btn-lg w-100 fw-bold py-3 shadow-sm">BAYAR SEKARANG</button>

@@ -1,3 +1,10 @@
+<?php
+/**
+ * @var array $mobil
+ * @var object|null $selected_mobil
+ * @var object $user
+ */
+?>
 <?= $this->extend('layout/landing'); ?>
 
 <?= $this->section('content'); ?>
@@ -26,11 +33,11 @@
                                     <select name="id_mobil" id="id_mobil" class="form-select border-0 bg-light p-3" style="border-radius: 12px;" required>
                                         <option value="" data-tarif="0" data-foto="<?= getCarImage() ?>">-- Pilih Mobil --</option>
                                         <?php foreach ($mobil as $m) : ?>
-                                            <option value="<?= $m['id_mobil'] ?>" 
-                                                data-tarif="<?= $m['tarif_per_hari'] ?>" 
-                                                data-foto="<?= getCarImage($m['foto_mobil'], $m['merk']) ?>"
-                                                <?= ($selected_mobil && $selected_mobil['id_mobil'] == $m['id_mobil']) ? 'selected' : '' ?>>
-                                                <?= $m['merk'] ?> - Rp <?= number_format($m['tarif_per_hari'], 0, ',', '.') ?>/hari
+                                            <option value="<?= $m->id_mobil ?>" 
+                                                data-tarif="<?= $m->tarif_per_hari ?>" 
+                                                data-foto="<?= getCarImage((string)$m->foto_mobil, (string)$m->merk) ?>"
+                                                <?= ($selected_mobil && $selected_mobil->id_mobil == $m->id_mobil) ? 'selected' : '' ?>>
+                                                <?= esc((string)$m->merk) ?> - Rp <?= number_format((float)$m->tarif_per_hari, 0, ',', '.') ?>/hari
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -82,14 +89,14 @@
                                     <div class="col-md-6 text-center">
                                         <label class="form-label small fw-bold text-muted d-block mb-3">UPLOAD FOTO KTP</label>
                                         <div class="file-upload-wrapper">
-                                            <input type="file" name="dokumen_ktp" class="form-control border-0 bg-light p-2" style="border-radius: 12px;" accept="image/*" required>
+                                            <input type="file" name="dokumen_ktp" id="dokumen_ktp" class="form-control border-0 bg-light p-2" style="border-radius: 12px;" accept="image/*" required onchange="triggerBlurModal('dokumen_ktp', 'ktp')">
                                             <small class="text-muted mt-2 d-block">Wajib diunggah untuk verifikasi</small>
                                         </div>
                                     </div>
                                     <div class="col-md-6 text-center border-start">
                                         <label class="form-label small fw-bold text-muted d-block mb-3">UPLOAD FOTO SIM A</label>
                                         <div class="file-upload-wrapper">
-                                            <input type="file" name="dokumen_sim" class="form-control border-0 bg-light p-2" style="border-radius: 12px;" accept="image/*" required>
+                                            <input type="file" name="dokumen_sim" id="dokumen_sim" class="form-control border-0 bg-light p-2" style="border-radius: 12px;" accept="image/*" required onchange="triggerBlurModal('dokumen_sim', 'sim')">
                                             <small class="text-muted mt-2 d-block">Wajib diunggah untuk verifikasi</small>
                                         </div>
                                     </div>
@@ -135,6 +142,8 @@
     </div>
 </section>
 
+<?= $this->include('pelanggan/upload_dokumen') ?>
+
 <?= $this->endSection(); ?>
 
 <?= $this->section('scripts'); ?>
@@ -161,10 +170,13 @@
         const name = option.text.split(' - ')[0];
 
         // Update preview
+        carImg.src = foto;
         if (option.value) {
-            carImg.src = foto;
             carName.innerText = name;
             carPrice.innerText = 'Rp ' + formatRupiah(tarif) + ' / Hari';
+        } else {
+            carName.innerText = 'Pilih Mobil';
+            carPrice.innerText = 'Rp 0 / Hari';
         }
 
         const start = new Date(tglSewa.value);

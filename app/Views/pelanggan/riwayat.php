@@ -1,3 +1,10 @@
+<?php
+/**
+ * @var string $filter
+ * @var array $history
+ * @var string $pager
+ */
+?>
 <?= $this->extend('layout/landing'); ?>
 
 <?= $this->section('content'); ?>
@@ -9,7 +16,7 @@
                 <h2 class="fw-bold mb-1">Riwayat Sewa Saya</h2>
                 <p class="text-muted mb-0">Pantau status pengajuan dan riwayat perjalanan Anda</p>
             </div>
-            <a href="<?= base_url('/sewa') ?>" class="btn btn-primary px-4 py-2 shadow-sm" style="border-radius: 10px;">
+            <a href="<?= base_url('/mobil') ?>" class="btn btn-primary px-4 py-2 shadow-sm" style="border-radius: 10px;">
                 <i class="bi bi-plus-lg me-2"></i>Sewa Mobil Baru
             </a>
         </div>

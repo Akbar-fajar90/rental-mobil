@@ -1,3 +1,9 @@
+<?php
+/**
+ * @var array $popularCars
+ * @var array $stats
+ */
+?>
 <?= $this->extend('layout/landing'); ?>
 
 <?= $this->section('content'); ?>
@@ -92,7 +98,7 @@
             <div class="col-lg-4 col-md-6">
                 <div class="card border-0 shadow-sm h-100" style="border-radius: 20px; overflow: hidden;">
                     <div class="position-relative">
-                        <img src="<?= getCarImage($c['foto_mobil'], $c['merk']) ?>" class="card-img-top" alt="<?= $c['merk'] ?>" style="height: 220px; object-fit: cover;">
+                        <img src="<?= getCarImage($c['foto_mobil'], $c['merk']) ?>" class="card-img-top" alt="<?= $c['merk'] ?>" style="height: 200px; object-fit: cover;">
                         <div class="position-absolute top-0 end-0 p-3">
                             <span class="badge bg-white text-primary fw-bold px-3 py-2" style="border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">Tersedia</span>
                         </div>
